@@ -1,0 +1,85 @@
+import java.util.*;
+
+class Quiz {
+    private Map<String, String> questions;
+    private Map<String, String> answers;
+    private int score;
+    
+    public Quiz() {
+        questions = new LinkedHashMap<>();
+        answers = new HashMap<>();
+        score = 0;
+    }
+    
+    public void addQuestion(String question, String[] options, String correctAnswer) {
+        StringBuilder optionsString = new StringBuilder();
+        for (int i = 0; i < options.length; i++) {
+            optionsString.append((char) ('A' + i)).append(". ").append(options[i]).append("\n");
+        }
+        questions.put(question, optionsString.toString());
+        answers.put(question, correctAnswer.toUpperCase());
+    }
+    
+    public void startQuiz() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Welcome to the Quiz!");
+        
+        for (Map.Entry<String, String> entry : questions.entrySet()) {
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
+            
+            Timer timer = new Timer();
+            TimerTask task = new TimerTask() {
+                public void run() {
+                    System.out.println("\nTime's up!");
+                    timer.cancel();
+                    scanner.nextLine(); // consume any pending input
+                }
+            };
+            timer.schedule(task, 15000); // 15 seconds for each question
+            
+            String userAnswer = scanner.nextLine().toUpperCase();
+            timer.cancel();
+            
+            if (userAnswer.equals(answers.get(entry.getKey()))) {
+                System.out.println("Correct!\n");
+                score++;
+            } else {
+                System.out.println("Incorrect!\n");
+            }
+        }
+        displayResult();
+    }
+    
+    private void displayResult() {
+        System.out.println("Quiz Ended!");
+        System.out.println("Your final score is: " + score + "/" + questions.size());
+        System.out.println("Summary of correct/incorrect answers:");
+        for (Map.Entry<String, String> entry : questions.entrySet()) {
+            String question = entry.getKey();
+            String correctAnswer = answers.get(question);
+            String userAnswer = entry.getValue();
+            boolean isCorrect = userAnswer.equals(correctAnswer);
+            
+            System.out.println("Question: " + question);
+            System.out.println("Correct Answer: " + correctAnswer);
+            System.out.println("Your Answer: " + userAnswer);
+            System.out.println("Result: " + (isCorrect ? "Correct" : "Incorrect"));
+            System.out.println();
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Quiz quiz = new Quiz();
+        quiz.addQuestion("What is the capital of France?",
+                new String[]{"Paris", "Madrid", "Rome", "Berlin"}, "A");
+        quiz.addQuestion("Which planet is known as the Red Planet?",
+                new String[]{"Venus", "Jupiter", "Mars", "Mercury"}, "C");
+        quiz.addQuestion("What is the powerhouse of the cell?",
+                new String[]{"Nucleus", "Mitochondria", "Ribosome", "Endoplasmic Reticulum"}, "B");
+        
+        quiz.startQuiz();
+}
+}
